@@ -1,0 +1,39 @@
+
+.app-content {
+	background: white url("../img/background.png") no-repeat 50%;
+}
+
+.vl-search-bar {
+	padding: 10px;
+	background-color: #092b65;
+	
+}
+
+.vl-add-bar {
+	padding: 10px;
+	background-color: #33968d;
+}
+
+.votelist {
+	padding: 10px;
+}
+
+.votelist table {
+	width: 100%;
+}
+
+.voteUp {
+	width: 60px;
+	font-size: 150%;
+	color: green;
+}
+
+.voteDown {
+	width: 60px;
+	font-size: 150%;
+	color: red;
+}
+
+.songText {
+	
+}

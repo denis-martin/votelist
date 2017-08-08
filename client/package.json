@@ -1,0 +1,9 @@
+{
+  "name": "votelist-client",
+  "main": "index.html",
+  "window": {
+    "title": "Votelist Client",
+    "width": 1100,
+    "height": 800
+  }
+}
