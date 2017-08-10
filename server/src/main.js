@@ -50,8 +50,9 @@ app.use(function(req, res, next)
 {
 	if (req.session) {
 		if (req.session.authenticated && req.session.guid) {
-			req.guid = req.session.guid;
-			logger.verbose("session", req.guid, req.url);
+			req.vl_guid = req.session.guid;
+			req.vl_ipAddress = req.get("X-Votelist-RemoteAdress");
+			logger.verbose("session", req.vl_guid, req.url);
 		}
 		// finishing processing the middleware and run the route
 		next();
@@ -62,9 +63,9 @@ app.use(function(req, res, next)
 
 function requireLogin (req, res, next) 
 {
-	if (!req.guid) {
-		logger.warn("requireLogin: missing GUID");
-		res.status(401).send({ code: 401 });	
+	if (!req.session || !req.session.authenticated || !req.session.guid) {
+		logger.warn("requireLogin: missing session/GUID or not authorized");
+		res.status(401).send({ code: 401 });
 	} else {
 		next();
 	}
@@ -78,7 +79,7 @@ app.get('/api/logout', function(req, res)
 
 app.get('/api/login', requireLogin, function(req, res) 
 {
-	res.status(200).send({ code: 200 });
+	res.status(200).send({ code: 200, guid: req.vl_guid });
 });
 
 app.get('/api/alive', function(req, res) 

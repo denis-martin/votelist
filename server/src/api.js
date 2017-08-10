@@ -82,12 +82,18 @@ app.post('/api/login', function(req, res)
     var ipAddress = req.get("X-Votelist-RemoteAdress");
     logger.info("post login guid/ip:", guid, ipAddress);
 
-    if (guid) {
-        req.session.guid = guid;
-        req.session.authenticated = true;
-        res.status(200).send({ code: 200 });
+    if (req.body.passphrase === config.passphrase) {
+        if (guid && ipAddress) {
+            req.session.guid = guid;
+            req.session.authenticated = true;
+            req.vl_guid = guid;
+            req.vl_ipAddress = ipAddress;
+            res.status(200).send({ code: 200, guid: guid });
+        } else {
+            res.status(400).send({ code: 400 });
+        }
     } else {
-        res.status(400).send({ code: 400 });
+        res.status(401).send({ code: 401, guid: guid });
     }
 });
 

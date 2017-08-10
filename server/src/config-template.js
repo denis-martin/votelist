@@ -10,5 +10,6 @@ module.exports = {
 	session: {
 		secret : require('crypto').randomBytes(64).toString('hex'),
 		secure : true
-	}
+	},
+	passphrase: "yyy"
 }
