@@ -228,6 +228,7 @@ var voteListApp = angular.module('voteListApp', ["mobile-angular-ui", 'LocalStor
 				item.id = response.data.id;
 				item.votesUp = 0;
 				item.votesDown = 0;
+				item.guid = vl.guid;
 				vl.list.push(item);
 				$scope.addText = "";
 				$scope.thinkingAddItem = false;
