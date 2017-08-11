@@ -15,17 +15,38 @@ var voteListApp = angular.module('voteListApp', ["mobile-angular-ui", 'LocalStor
 	vl.userName = localStorageService.get("userName");
 	if (!vl.userName) {
 		vl.needUserName = true;
+		vl.userName = "Gast";
 	}
 	vl.guid = localStorageService.get("guid");
 	if (!vl.guid) {
 		vl.guid = Guid.NewGuid().ToString();
+		localStorageService.set("guid", vl.guid);
 	}
 	vl.list = [];
+	vl.filter = { title: "" };
+	vl.editText = "";
 
 	SharedState.initialize($scope, "loginModal");
 
 	$http.defaults.headers.common['X-Votelist-GUID'] = vl.guid;
 	$http.defaults.headers.common['X-Votelist-RemoteAdress'] = "127.0.0.1";
+
+	vl.applySearch = function(filterText)
+	{
+		vl.filter.title = filterText;
+	}
+
+	vl.resetSearch = function()
+	{
+		vl.filter.title = "";
+		$scope.searchText = "";
+	}
+
+	vl.setActiveItem = function(item)
+	{
+		vl.activeItem = item;
+		vl.editText = vl.activeItem.title;
+	}
 
 	$rootScope.uiLogin = function()
 	{
@@ -40,6 +61,20 @@ var voteListApp = angular.module('voteListApp', ["mobile-angular-ui", 'LocalStor
 				$timeout(function() { $scope.modalError = ""; }, 5000);
 			}
 		);
+	}
+
+	$rootScope.uiChangeName = function()
+	{
+		console.log("uiChangeName");
+		SharedState.turnOff("authorModal");
+		vl.needUserName = false;
+		if (vl.authorModalContinueAddItem) {
+			vl.addItem($scope.addText);
+			vl.authorModalContinueAddItem = false;
+		}
+		if (vl.userName && vl.userName != "Gast") {
+			localStorageService.set("userName", vl.userName);
+		}
 	}
 
 	vl.loginTest = function(fnSuccess, fnError)
@@ -90,6 +125,7 @@ var voteListApp = angular.module('voteListApp', ["mobile-angular-ui", 'LocalStor
 		console.log(vl.guid, response.data.guid);
 		vl.guid = response.data.guid;
 		$http.defaults.headers.common['X-Votelist-GUID'] = vl.guid;
+		localStorageService.set("guid", vl.guid);
 		
 		if (fnSuccess) {
 			fnSuccess(response);
@@ -117,7 +153,7 @@ var voteListApp = angular.module('voteListApp', ["mobile-angular-ui", 'LocalStor
 	vl.refresh = function()
 	{
 		console.log("refresh", vl.guid);
-		$http.get(apiBasePath + "api/db/votelist").then(
+		$http.get(apiBasePath + "api/votelist").then(
 			function(response) {
 				if (!vl.list || vl.list.length == 0) {
 					// initial fetch of data
@@ -157,6 +193,9 @@ var voteListApp = angular.module('voteListApp', ["mobile-angular-ui", 'LocalStor
 				console.error("get api/db/votelist error", response);
 				if (response.status == 401) {
 					SharedState.turnOn("loginModal");
+				} else {
+					// let's hope the best
+					$timeout(function() { vl.refresh(); }, 10000);
 				}
 			}
 		);
@@ -171,6 +210,12 @@ var voteListApp = angular.module('voteListApp', ["mobile-angular-ui", 'LocalStor
 			alert("Gib bitte mindestens 5 Zeichen ein!")
 			return;
 		}
+		if (vl.needUserName) {
+			SharedState.turnOn("authorModal");
+			vl.authorModalContinueAddItem = true;
+			return;
+		}
+
 		$scope.thinkingAddItem = true;
 		var item = {
 			title: title,
@@ -192,7 +237,74 @@ var voteListApp = angular.module('voteListApp', ["mobile-angular-ui", 'LocalStor
 				if (response.status == 401) {
 					SharedState.turnOn("loginModal");
 				}
+				if (response.status == 429) {
+					alert("Ups. Da sind insgesamt zu viele Wünsche (oder jemand hat hier Blödsinn getrieben!)");
+				}
 				$scope.thinkingAddItem = false;
+			}
+		);
+	}
+
+	vl.saveItem = function(vi, title)
+	{
+		if (vl.thinkingSaveItem) {
+			return;
+		}
+		if (title.length <= 4) {
+			alert("Gib bitte mindestens 5 Zeichen ein!")
+			return;
+		}
+
+		vl.thinkingSaveItem = true;
+		var item = {
+			title: title,
+			author: vl.userName
+		}
+		$http.put(apiBasePath + "api/db/votelist/" + vi.id, item).then(
+			function(response) {
+				console.log("put api/db/votelist/" + vi.id + " success", response.data);
+				vi.title = item.title;
+				vi.author = item.author;
+				vl.editText = item.title;
+				vl.thinkingSaveItem = false;
+			},
+			function(response) {
+				console.error("post api/db/votelist error", response);
+				if (response.status == 401) {
+					SharedState.turnOn("loginModal");
+				}
+				vl.thinkingSaveItem = false;
+				alert("Das Speichern ist leider fehlgeschlagen (" + response.status + ") :(");
+			}
+		);
+	}
+
+	vl.vote = function(vi, vote)
+	{
+		if (vl.thinkingVoteItem) {
+			return;
+		}
+
+		vl.thinkingVoteItem = true;
+		var item = {}
+		$http.post(apiBasePath + "api/votes/" + vi.id + "/" + vote, item).then(
+			function(response) {
+				if (vote == "voteup") {
+					vi.votesUp = vi.votesUp + 1;
+				} else if (vote == "votedown") {
+					vi.votesDown = vi.votesDown + 1;
+				}
+				vi.canVote = 0;
+				vl.thinkingVoteItem = false;
+				console.log("post api/votes/" + vi.id + "/" + vote + " success", response.data);
+			},
+			function(response) {
+				console.error("post api/votes/" + vi.id + "/" + vote + " error", response);
+				if (response.status == 401) {
+					SharedState.turnOn("loginModal");
+				}
+				vl.thinkingVoteItem = false;
+				alert("Das Speichern ist leider fehlgeschlagen (" + response.status + ") :(");
 			}
 		);
 	}

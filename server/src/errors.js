@@ -17,4 +17,5 @@ module.exports = {
     
     badGateway: { id: 502, msg: "Error retrieving content: bad gateway" },
     notFound: { id: 404, msg: "Error retrieving content: resource not found" },
+    tooManyRequests: { id: 429, msg: "Error: Maximum number of requests exceeded" },
 }

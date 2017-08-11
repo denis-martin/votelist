@@ -2,3 +2,8 @@
 # create & grant privileges to DB user
 CREATE USER 'denis_tdvl_adm'@'localhost' IDENTIFIED BY 'xxx';
 GRANT ALL PRIVILEGES ON `denis_td_votelist`.* TO 'denis_tdvl_adm'@'localhost';
+
+revoke all privileges on `denis_td_votelist`.* from 'denis_tdvl_adm'@'localhost';
+
+grant select,insert,delete,update on `denis_td_votelist`.* to 'denis_tdvl_adm'@'localhost';
+grant select,insert,delete,update on `denis_td_votes`.* to 'denis_tdvl_adm'@'localhost';
