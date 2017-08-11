@@ -309,7 +309,7 @@ app.get('/api/votelist', requireLogin, requireDbc, function(req, res)
 {
 	dbc.query('SELECT vl.id,title,author,votesUp,votesDown,changedAt,' +
 		'IF(vl.guid="' + req.session.guid + '", 1, 0) AS canEdit,' +
-		'ISNULL(votes.id) AS canVote ' +
+		'(ISNULL(votes.guid) OR votes.guid <> "' + req.session.guid + '") AS canVote ' +
 		'FROM denis_td_votelist AS vl LEFT JOIN denis_td_votes AS votes ON vl.id=votes.vlId;',
 		function(err, rows, fields) {
 			if (err) {
