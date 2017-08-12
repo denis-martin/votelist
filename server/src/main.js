@@ -39,8 +39,8 @@ app.use(session(
 {
 	cookieName: 'session',
 	secret: config.session.secret,
-	duration: 60 * 60 * 1000, // 60 minutes initial duration
-	activeDuration: 60 * 60 * 1000, // prolong by 60 minutes
+	duration: 28 * 24 * 60 * 60 * 1000, // 4 weeks initial duration
+	activeDuration: 24 * 60 * 60 * 1000, // prolong by 24 hours
 	httpOnly: true, // do not expose to browser's javascript
 	secure: config.session.secure, // instruct browser to only send cookie over https
 	ephemeral: true // instruct browser to drop cookie when browser is closed
