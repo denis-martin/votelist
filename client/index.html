@@ -32,7 +32,11 @@
 			<div class="scrollable-content">
 				<div class="list-group" ui-turn-off="uiSidebarLeft">
 					<a class="list-group-item" href="#" ui-turn-on="authorModal">Namen ändern</a>
-					<a class="list-group-item" href="https://tine-und-denis.de/">Zurück zur Homepage</a>
+					<a class="list-group-item" href="#" ng-click="vl.sortByVotes()">Sortieren: nach Wertung</a>
+					<a class="list-group-item" href="#" ng-click="vl.sortByTitle()">Sortieren: alphabetisch</a>
+				</div>
+				<div class="list-group" ui-turn-off="uiSidebarLeft">
+					<a class="list-group-item" href="https://tine-und-denis.de/" target="_blank">Zur Homepage</a>
 					<a class="list-group-item" href="https://github.com/denis-martin/votelist" target="_blank">&copy; 2017 Denis Martin</a>
 				</div>
 			</div>
@@ -105,6 +109,13 @@
 						</div>
 					</span>
 				</div>
+				<div class="list-group">
+					<span class="list-group-item media">
+						<div class="media-body" ui-toggle="uiSidebarRight">
+							<i class="fa fa-arrow-left" aria-hidden="true"></i> Zurück
+						</div>
+					</span>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -150,12 +161,12 @@
 				<div class="scrollable">
 					<div class="scrollable-content">
 						<div class="votelist">
-							<table ui-toggle="uiSidebarRight">
+							<table ui-turn-on="uiSidebarRight">
 								<tbody>
 									<tr ng-repeat="vi in vl.list | filter:vl.filter" ng-click="vl.setActiveItem(vi)">
-										<td class="voteUp"><span class="fa fa-thumbs-o-up"></span> {{vi.votesUp}}</td>
-										<td class="voteDown"><span class="fa fa-thumbs-o-down"></span>  {{vi.votesDown}}</td>
-										<td class="songText">{{vi.title}}</td>
+										<td class="voteUp"><i class="fa fa-thumbs-o-up"></i> {{vi.votesUp}}</td>
+										<td class="voteDown"><i class="fa fa-thumbs-o-down"></i> {{vi.votesDown}}</td>
+										<td>{{vi.title}} <span ng-if="vi.canEdit" class="canEdit"><i class="fa fa-pencil"></span></td>
 									</tr>
 								</tbody>
 							</table>

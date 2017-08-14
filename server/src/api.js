@@ -312,7 +312,7 @@ app.get('/api/votelist', requireLogin, requireDbc, function(req, res)
 		'ISNULL(votes.guid) AS canVote ' +
 		'FROM denis_td_votelist AS vl LEFT JOIN denis_td_votes AS votes ON vl.id=votes.vlId AND ' +
 		'votes.guid="' + req.session.guid + '" ' +
-		'ORDER BY (votesUp-votesDown) DESC, vl.id ASC;',
+		'ORDER BY (votesUp-votesDown) DESC, vl.title ASC;',
 		function(err, rows, fields) {
 			if (err) {
 				logger.info(errors.dbGet, err);

@@ -4,7 +4,7 @@ var apiBasePath = "/";
 
 var voteListApp = angular.module('voteListApp', ["mobile-angular-ui", 'LocalStorageModule'])
 
-.controller('voteListCtrl', function($rootScope, $scope, $http, $timeout, SharedState, localStorageService) // root controller
+.controller('voteListCtrl', function($rootScope, $scope, $location, $http, $timeout, SharedState, localStorageService) // root controller
 {
 	vl = this;
 	$scope.vl = vl;
@@ -25,6 +25,7 @@ var voteListApp = angular.module('voteListApp', ["mobile-angular-ui", 'LocalStor
 	vl.list = [];
 	vl.filter = { title: "" };
 	vl.editText = "";
+	vl.baseLocation = "";
 
 	SharedState.initialize($scope, "loginModal");
 
@@ -228,6 +229,7 @@ var voteListApp = angular.module('voteListApp', ["mobile-angular-ui", 'LocalStor
 				item.id = response.data.id;
 				item.votesUp = 0;
 				item.votesDown = 0;
+				item.canEdit = 1;
 				item.guid = vl.guid;
 				vl.list.push(item);
 				$scope.addText = "";
@@ -237,8 +239,8 @@ var voteListApp = angular.module('voteListApp', ["mobile-angular-ui", 'LocalStor
 				console.error("post api/db/votelist error", response);
 				if (response.status == 401) {
 					SharedState.turnOn("loginModal");
-				}
-				if (response.status == 429) {
+
+				} else if (response.status == 429) {
 					alert("Ups. Da sind insgesamt zu viele Wünsche (oder jemand hat hier Blödsinn getrieben!)");
 				}
 				$scope.thinkingAddItem = false;
@@ -309,6 +311,55 @@ var voteListApp = angular.module('voteListApp', ["mobile-angular-ui", 'LocalStor
 			}
 		);
 	}
+
+	vl.sortByTitle = function()
+	{
+		vl.list.sort(function(a, b) {
+			return a.title.localeCompare(b.title);
+		});
+	}
+
+	vl.sortByVotes = function()
+	{
+		vl.list.sort(function(a, b) {
+			var a_delta = a.votesUp - a.votesDown;
+			var b_delta = b.votesUp - b.votesDown;
+			if (a_delta < b_delta) {
+				return 1;
+			} else if (a_delta == b_delta) {
+				return a.title.localeCompare(b.title);
+			} else {
+				return -1;
+			}
+		});
+	}
+
+	$rootScope.$watch(function () {return $location.path()}, function (newLocation, oldLocation) {
+		if (newLocation === vl.baseLocation) { // indicates that browser-back was hit
+			SharedState.turnOff("uiSidebarLeft");
+			SharedState.turnOff("uiSidebarRight");
+		}
+	});
+
+	$rootScope.$watch(function () {return SharedState.isActive("uiSidebarRight")}, function (newValue, oldValue) {
+		if (oldValue && !newValue) {
+			if ($location.path() !== vl.baseLocation) {
+				window.history.back();
+			}
+		} else if (newValue && !oldValue) {
+			$location.path("right");
+		}
+	});
+
+	$rootScope.$watch(function () {return SharedState.isActive("uiSidebarLeft")}, function (newValue, oldValue) {
+		if (oldValue && !newValue) {
+			if ($location.path() !== vl.baseLocation) {
+				window.history.back();
+			}
+		} else if (newValue && !oldValue) {
+			$location.path("left");
+		}
+	});
 
 	vl.loginTest(vl.refresh, function() {
 		SharedState.turnOn("loginModal");
