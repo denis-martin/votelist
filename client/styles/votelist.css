@@ -41,7 +41,12 @@
 
 .votelist table {
 	width: 100%;
+	cursor: pointer;
 }
+
+/*.votelist table tr:hover {
+	background-color: rgba(200,200,200,0.5);
+}*/
 
 .voteUp {
 	width: 60px;
@@ -57,4 +62,8 @@
 
 .canEdit {
 	color: lightgrey;
+}
+
+a.list-group-item {
+	cursor: pointer;
 }
