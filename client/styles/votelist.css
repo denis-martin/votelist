@@ -1,7 +1,8 @@
 
 .app-content {
-	background: black url("https://joebaka.de/images/bilder/IMG_466630.jpg") no-repeat 50%;
-	color: #888888;
+	background: black url("https://joebaka.de/images/bilder/IMG_466630.jpg") no-repeat 10%;
+	color: #fff;
+	text-shadow: 1px 1px #333
 }
 
 .fa-refresh-animate {

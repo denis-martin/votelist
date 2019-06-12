@@ -101,7 +101,7 @@ app.post('/api/login', function(req, res)
 app.get('/api/db/:tablename', requireLogin, checkTableAcl, requireDbc, function(req, res)
 {
 	dbc.query('SELECT ' + tableAcl.votelist.selectFields + ',IF(guid="' + req.session.guid +
-		'", 1, 0) AS canEdit FROM denis_td_' + req.params.tablename + ';', 
+		'", 1, 0) AS canEdit FROM tbl_' + req.params.tablename + ';', 
 		function(err, rows, fields) {
 			if (err) {
 				logger.info(errors.dbGet, err);
@@ -122,7 +122,7 @@ app.get('/api/db/:tablename/:id', requireLogin, checkTableAcl, requireDbc, funct
 
 	} else {
 		dbc.query('SELECT ' + tableAcl.votelist.selectFields + ',IF(guid="' + req.session.guid +
-			'", 1, 0) AS canEdit FROM denis_td_' + req.params.tablename + 
+			'", 1, 0) AS canEdit FROM tbl_' + req.params.tablename + 
 			' WHERE id=' + req.params.id + ';', 
 			function(err, rows, fields) {
 				if (err) {
@@ -152,7 +152,7 @@ app.post('/api/db/:tablename', requireLogin, checkTableAcl, requireDbc, function
 		res.status(400).send({ code: 400, error: errors.dbPostReq });
 
 	} else {
-		dbc.query('SELECT COUNT(id) FROM denis_td_' + req.params.tablename + ';', function(err, rows, fields) {
+		dbc.query('SELECT COUNT(id) FROM tbl_' + req.params.tablename + ';', function(err, rows, fields) {
 			if (err) {
 				logger.info(errors.dbGet, err);
 				res.status(500).send({ code: 500, error: errors.dbGet });
@@ -176,12 +176,11 @@ app.post('/api/db/:tablename', requireLogin, checkTableAcl, requireDbc, function
 
 			var ipAddress = req.get("X-Votelist-RemoteAdress");
 			var now = new Date();
-			now.setMilliseconds(0);
 
-			req.body.changedAt = now.toISOString();
+			req.body.changedAt = now.toISOString().slice(0, 19).replace('T', ' ');
 			req.body.guid = req.session.guid;
 			req.body.ipAddress = ipAddress;
-			dbc.query("INSERT INTO denis_td_" + req.params.tablename + " SET ?;", req.body,
+			dbc.query("INSERT INTO tbl_" + req.params.tablename + " SET ?;", req.body,
 				function(err, info) {
 					if (err) {
 						logger.info(errors.dbPost, err);
@@ -205,7 +204,7 @@ app.delete('/api/db/:tablename/:id', requireLogin, checkTableAcl, requireDbc, fu
 		res.status(400).send({ code: 400, error: errors.dbDeleteReq });
 
 	} else {
-		dbc.query('SELECT id,guid FROM denis_td_' + req.params.tablename + " WHERE id=" + req.params.id + ";", function(err, rows, fields) {
+		dbc.query('SELECT id,guid FROM tbl_' + req.params.tablename + " WHERE id=" + req.params.id + ";", function(err, rows, fields) {
 			if (err) {
 				logger.info(errors.dbGet, err);
 				res.status(500).send({ code: 500, error: errors.dbGet });
@@ -226,7 +225,7 @@ app.delete('/api/db/:tablename/:id', requireLogin, checkTableAcl, requireDbc, fu
 					}
 				}
 			}
-			dbc.query("DELETE FROM denis_td_" + req.params.tablename + " WHERE id=" + req.params.id + ";",
+			dbc.query("DELETE FROM tbl_" + req.params.tablename + " WHERE id=" + req.params.id + ";",
 				function(err, info) {
 					if (err) {
 						logger.info(errors.dbDelete, err);
@@ -252,7 +251,7 @@ app.put('/api/db/:tablename/:id', requireLogin, checkTableAcl, requireDbc, funct
 		res.status(400).send({ code: 400, error: errors.dbPutReq });
 
 	} else {
-		dbc.query('SELECT id,guid FROM denis_td_' + req.params.tablename + " WHERE id=" + req.params.id + ";", function(err, rows, fields) {
+		dbc.query('SELECT id,guid FROM tbl_' + req.params.tablename + " WHERE id=" + req.params.id + ";", function(err, rows, fields) {
 			if (err) {
 				logger.info(errors.dbGet, err);
 				res.status(500).send({ code: 500, error: errors.dbGet });
@@ -276,12 +275,11 @@ app.put('/api/db/:tablename/:id', requireLogin, checkTableAcl, requireDbc, funct
 
 			var ipAddress = req.get("X-Votelist-RemoteAdress");
 			var now = new Date();
-			now.setMilliseconds(0);
 
-			req.body.changedAt = now.toISOString();
+			req.body.changedAt = now.toISOString().slice(0, 19).replace('T', ' ');
 			req.body.guid = req.session.guid;
 			req.body.ipAddress = ipAddress;
-			dbc.query("UPDATE denis_td_" + req.params.tablename + " SET ? WHERE id=" + req.params.id + ";", req.body,
+			dbc.query("UPDATE tbl_" + req.params.tablename + " SET ? WHERE id=" + req.params.id + ";", req.body,
 				function(err, info) {
 					if (err) {
 						logger.info(errors.dbPut, err);
@@ -310,7 +308,7 @@ app.get('/api/votelist', requireLogin, requireDbc, function(req, res)
 	dbc.query('SELECT vl.id,title,author,votesUp,votesDown,changedAt,' +
 		'IF(vl.guid="' + req.session.guid + '", 1, 0) AS canEdit,' +
 		'ISNULL(votes.guid) AS canVote ' +
-		'FROM denis_td_votelist AS vl LEFT JOIN denis_td_votes AS votes ON vl.id=votes.vlId AND ' +
+		'FROM tbl_votelist AS vl LEFT JOIN tbl_votes AS votes ON vl.id=votes.vlId AND ' +
 		'votes.guid="' + req.session.guid + '" ' +
 		'ORDER BY (votesUp-votesDown) DESC, vl.title ASC;',
 		function(err, rows, fields) {
@@ -333,7 +331,7 @@ app.post('/api/votes/:id/:vote', requireLogin, requireDbc, function(req, res)
 		res.status(400).send({ code: 400, error: errors.dbPostReq });
 
 	} else {
-		dbc.query('SELECT vlId,guid FROM denis_td_votes WHERE vlId=' + req.params.id + 
+		dbc.query('SELECT vlId,guid FROM tbl_votes WHERE vlId=' + req.params.id + 
 			' AND guid="' + req.session.guid + '";',
 			function(err, rows, fields) {
 				if (err) {
@@ -349,13 +347,12 @@ app.post('/api/votes/:id/:vote', requireLogin, requireDbc, function(req, res)
 
 					} else {
 						var now = new Date();
-						now.setMilliseconds(0);
-						var changedAt = now.toISOString();
+						var changedAt = now.toISOString().slice(0, 19).replace('T', ' ');
 						var setStr = "votesUp = votesUp + 1, changedAt = '" + changedAt + "'";
 						if (req.params.vote == "votedown") {
 							setStr = "votesDown = votesDown + 1, changedAt = '" + changedAt + "'";
 						}
-						dbc.query("UPDATE denis_td_votelist SET "+setStr+" WHERE id="+req.params.id+";", 
+						dbc.query("UPDATE tbl_votelist SET "+setStr+" WHERE id="+req.params.id+";", 
 							function(err, info) {
 								if (err || info.affectedRows == 0) {
 									logger.info(errors.dbPost, err);
@@ -364,7 +361,7 @@ app.post('/api/votes/:id/:vote', requireLogin, requireDbc, function(req, res)
 									res.status(200).send({ count: info.affectedRows });
 
 									// invalidate guid
-									dbc.query("INSERT INTO denis_td_votes SET ?;", 
+									dbc.query("INSERT INTO tbl_votes SET ?;", 
 										{ vlId: req.params.id, guid: req.session.guid },
 										function(err, info) {
 											if (err || info.affectedRows == 0) {
