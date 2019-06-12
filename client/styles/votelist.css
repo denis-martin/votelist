@@ -1,6 +1,7 @@
 
 .app-content {
-	background: white url("../img/background.png") no-repeat 50%;
+	background: black url("https://joebaka.de/images/bilder/IMG_466630.jpg") no-repeat 50%;
+	color: #888888;
 }
 
 .fa-refresh-animate {
@@ -23,14 +24,14 @@
 }
 
 .vl-search-bar {
-	background-color: #092b65;
+	background-color: #310965;
 	box-shadow: 0 1px 4px #888888;
 	border: 0;
 }
 
 .vl-add-bar {
 	padding: 8px;
-	background-color: #33968d;
+	background-color: #611324;
 	box-shadow: 0 -1px 4px #888888;
 	border: 0;
 }
