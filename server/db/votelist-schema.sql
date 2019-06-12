@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 5.5.57, for debian-linux-gnu (x86_64)
 --
--- Host: localhost    Database: denis_td_votelist
+-- Host: localhost    Database: db_votelist
 -- ------------------------------------------------------
 -- Server version	5.5.57-0+deb7u1
 
@@ -16,13 +16,13 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `denis_td_votelist`
+-- Table structure for table `tbl_votelist`
 --
 
-DROP TABLE IF EXISTS `denis_td_votelist`;
+DROP TABLE IF EXISTS `tbl_votelist`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `denis_td_votelist` (
+CREATE TABLE `tbl_votelist` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `ipAddress` varchar(40) DEFAULT NULL,
   `guid` varchar(40) DEFAULT NULL,
@@ -36,13 +36,13 @@ CREATE TABLE `denis_td_votelist` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `denis_td_votes`
+-- Table structure for table `tbl_votes`
 --
 
-DROP TABLE IF EXISTS `denis_td_votes`;
+DROP TABLE IF EXISTS `tbl_votes`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `denis_td_votes` (
+CREATE TABLE `tbl_votes` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `vlId` int(11) NOT NULL,
   `guid` varchar(40) CHARACTER SET latin1 NOT NULL,
